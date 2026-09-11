@@ -19,6 +19,7 @@ Le projet couvre l'ensemble d'une démarche de Machine Learning :
 * optimisation des hyperparamètres ;
 * évaluation sur un jeu de test indépendant ;
 * interprétation des résultats ;
+* visualisation interactive des résultats ;
 * formulation de recommandations métier.
 
 ---
@@ -239,6 +240,8 @@ L'arbre de décision permet de représenter les règles de classification sous f
 
 Il peut capturer des relations non linéaires entre les variables.
 
+La profondeur de l'arbre, le nombre de feuilles et le nombre de nœuds ont également été étudiés afin d'analyser sa complexité.
+
 ## Random Forest
 
 Le Random Forest repose sur un ensemble de plusieurs arbres de décision.
@@ -364,9 +367,15 @@ Cependant, le recall de 52,41 % montre qu'une partie importante des clients rée
 
 ---
 
-# Matrice de confusion
+# Validation et généralisation
 
-La matrice de confusion du modèle final est :
+Le modèle final est évalué sur un jeu de test représentant 20 % des données, qui n'a pas été utilisé pour son entraînement.
+
+Une comparaison des performances entre les données d'entraînement et de test permet d'analyser la capacité du modèle à généraliser son apprentissage à de nouvelles observations.
+
+L'analyse des erreurs permet également d'identifier les faux positifs et les faux négatifs.
+
+Pour le modèle final, la matrice de confusion obtenue est :
 
 |            | Prédit : Non | Prédit : Oui |
 | ---------- | -----------: | -----------: |
@@ -403,6 +412,35 @@ Les dix variables les plus importantes sont :
 L'ancienneté, les charges totales et les charges mensuelles sont les variables les plus contributives aux prédictions du modèle.
 
 Ces importances permettent de mieux comprendre le fonctionnement du modèle, mais ne doivent pas être interprétées comme des relations causales.
+
+---
+
+# Dashboard interactif
+
+Un dashboard interactif a été développé avec **Streamlit et Plotly** afin de faciliter l'exploration des caractéristiques associées au churn.
+
+Le dashboard permet notamment :
+
+* d'appliquer des filtres sur le type de contrat ;
+* d'appliquer des filtres sur le service Internet ;
+* d'appliquer des filtres sur le mode de paiement ;
+* d'observer le taux de churn selon le type de contrat ;
+* d'observer le taux de churn selon le service Internet ;
+* d'observer le taux de churn selon l'ancienneté ;
+* d'analyser la distribution des charges mensuelles ;
+* d'explorer les données correspondant aux filtres sélectionnés.
+
+Le dashboard est disponible dans :
+
+```text
+dashboard/app.py
+```
+
+Pour le lancer :
+
+```bash
+python -m streamlit run dashboard/app.py
+```
 
 ---
 
@@ -459,7 +497,7 @@ Plusieurs pistes pourraient être explorées dans une version future du projet :
 * utiliser des méthodes d'interprétabilité comme SHAP ;
 * mettre en place un suivi des performances du modèle ;
 * réentraîner régulièrement le modèle avec de nouvelles données ;
-* développer un dashboard permettant aux équipes commerciales d'explorer les clients à risque ;
+* enrichir le dashboard avec des fonctionnalités supplémentaires d'aide à la décision ;
 * déployer le modèle dans une application de prédiction.
 
 ---
@@ -474,6 +512,10 @@ telco-customer-churn/
 │   │   └── telco-customer-churn.csv
 │   │
 │   └── processed/
+│       └── telco_customer_churn_clean.csv
+│
+├── dashboard/
+│   └── app.py
 │
 ├── notebooks/
 │   ├── 01_analyse_preparation.ipynb
@@ -503,6 +545,9 @@ telco-customer-churn/
 **`data/`**
 Contient les données utilisées pour le projet.
 
+**`dashboard/`**
+Contient le dashboard interactif développé avec Streamlit et Plotly.
+
 **`notebooks/`**
 Contient les notebooks correspondant aux différentes étapes de l'analyse.
 
@@ -522,7 +567,7 @@ Contient les conclusions et les figures produites pendant le projet.
 ## 1. Cloner le projet
 
 ```bash
-git clone <URL_DU_REPOSITORY>
+git clone https://github.com/lynalasla/telco-customer-churn.git
 cd telco-customer-churn
 ```
 
@@ -554,7 +599,7 @@ pip install -r requirements.txt
 
 # Exécution
 
-L'analyse peut être exécutée dans l'ordre suivant :
+L'analyse peut être exécutée dans l'ordre suivant.
 
 ### 1. Analyse et préparation
 
@@ -578,7 +623,15 @@ Ce notebook contient l'entraînement des modèles, leur comparaison et l'optimis
 notebooks/03_validation_finale.ipynb
 ```
 
-Ce notebook contient l'évaluation finale du modèle, la matrice de confusion, la courbe ROC et l'analyse de l'importance des variables.
+Ce notebook contient l'évaluation finale du modèle, la matrice de confusion, la courbe ROC, l'analyse de la généralisation et l'importance des variables.
+
+### 4. Dashboard interactif
+
+Le dashboard peut être lancé depuis la racine du projet avec :
+
+```bash
+python -m streamlit run dashboard/app.py
+```
 
 ---
 
@@ -590,6 +643,8 @@ Ce notebook contient l'évaluation finale du modèle, la matrice de confusion, l
 * **Scikit-learn**
 * **Matplotlib**
 * **Seaborn**
+* **Plotly**
+* **Streamlit**
 * **Jupyter Notebook**
 * **Git / GitHub**
 
@@ -604,5 +659,7 @@ L'analyse exploratoire a permis d'identifier plusieurs caractéristiques associ�
 Après comparaison et optimisation de plusieurs modèles, le Random Forest optimisé a obtenu un **ROC-AUC de 0,8438 sur le jeu de test**.
 
 Le modèle constitue ainsi une base pertinente pour identifier les clients présentant un risque de résiliation. Toutefois, son recall de 52,41 % montre qu'une amélioration reste nécessaire avant une utilisation opérationnelle.
+
+Le dashboard interactif développé avec Streamlit et Plotly permet de compléter l'analyse par une exploration visuelle des caractéristiques associées au churn.
 
 Dans un contexte réel, l'étape suivante consisterait notamment à optimiser le seuil de décision et à privilégier une stratégie permettant de détecter davantage de clients à risque, tout en maîtrisant le nombre de fausses alertes.
