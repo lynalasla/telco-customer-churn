@@ -489,7 +489,7 @@ telco-customer-churn/
 │   └── 03_validation_finale.ipynb
 │
 ├── reports/
-│   └── conclusions.md        ← seulement si réellement utilisé
+│   └── conclusions.md        
 │
 ├── .gitignore
 ├── LICENSE
