@@ -483,22 +483,13 @@ telco-customer-churn/
 │   ├── raw/
 │   └── processed/
 │
-├── models/
-│
 ├── notebooks/
 │   ├── 01_analyse_preparation.ipynb
 │   ├── 02_modelisation_optimisation.ipynb
 │   └── 03_validation_finale.ipynb
 │
 ├── reports/
-│   ├── figures/
-│   └── conclusions.md
-│
-├── src/
-│   ├── preprocessing.py
-│   ├── models.py
-│   ├── evaluation.py
-│   └── visualization.py
+│   └── conclusions.md        ← seulement si réellement utilisé
 │
 ├── .gitignore
 ├── LICENSE
