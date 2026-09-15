@@ -2,269 +2,206 @@
 
 ## Présentation du projet
 
-Ce projet a pour objectif de développer un système de Machine Learning capable de prédire le **churn client**, c’est-à-dire la probabilité qu’un client résilie son abonnement auprès d'une entreprise de télécommunications.
+Ce projet a pour objectif de prédire le **churn client**, c’est-à-dire la probabilité qu’un client résilie son abonnement à un service de télécommunication.
 
-Dans un contexte fortement concurrentiel, la fidélisation des clients représente un enjeu important pour les entreprises de télécommunications. Identifier suffisamment tôt les clients susceptibles de partir permet de mettre en place des actions de fidélisation ciblées et d'améliorer la prise de décision commerciale.
+L’objectif est de construire et comparer plusieurs modèles de Machine Learning afin d’identifier les clients susceptibles de quitter l’entreprise, tout en mettant en place un pipeline complet allant de la préparation des données jusqu’à l’évaluation et à la visualisation des résultats.
 
-L'objectif est donc de construire un modèle capable d'identifier les clients présentant un risque de résiliation à partir de leurs caractéristiques et de leur historique.
-
-Le projet couvre l'ensemble d'une démarche de Machine Learning :
-
-* analyse et compréhension des données ;
-* nettoyage et préparation des données ;
-* analyse exploratoire des données (EDA) ;
-* transformation des variables ;
-* entraînement de plusieurs modèles ;
-* comparaison des performances ;
-* optimisation des hyperparamètres ;
-* évaluation sur un jeu de test indépendant ;
-* interprétation des résultats ;
-* visualisation interactive des résultats ;
-* formulation de recommandations métier.
+**Projet réalisé dans le cadre de la formation Directeur de Projet en Intelligence Artificielle — AIA01.**
 
 ---
 
 ## Problématique
 
-La problématique étudiée est la suivante :
+L’entreprise souhaite anticiper les départs de ses clients afin de pouvoir mettre en place des actions de fidélisation.
 
-> **Peut-on prédire si un client d'une entreprise de télécommunications va résilier son contrat à partir de ses caractéristiques et de son historique de consommation ?**
+La problématique est donc la suivante :
 
-La variable cible est `Churn` :
+> **Peut-on prédire quels clients sont susceptibles de résilier leur abonnement à partir de leurs caractéristiques et de leur historique d’utilisation ?**
 
-* `No` : le client reste chez l'entreprise ;
-* `Yes` : le client résilie son contrat.
+Il s’agit d’un problème de **classification binaire** :
 
-Le problème est donc traité comme un problème de **classification binaire**.
+* `0` → No Churn : le client reste
+* `1` → Churn : le client quitte l’entreprise
 
 ---
 
 ## Dataset
 
-Le projet utilise le dataset public **Telco Customer Churn**, disponible sur Kaggle.
+Le dataset utilisé est le **Telco Customer Churn**, disponible sur Kaggle.
 
-Le dataset contient :
+Il contient :
 
-* **7 043 clients** ;
-* **21 variables** ;
-* une variable cible `Churn`.
+* **7 043 clients**
+* **21 variables**
+* une variable cible : `Churn`
 
 Les variables décrivent notamment :
 
 * les caractéristiques du client ;
 * son ancienneté ;
-* son contrat ;
+* son type de contrat ;
 * ses services ;
 * son mode de paiement ;
-* ses charges mensuelles ;
-* ses charges totales.
+* ses dépenses mensuelles ;
+* ses dépenses totales.
 
-### Principales variables
+### Variable cible
 
-| Variable           | Description                    |
-| ------------------ | ------------------------------ |
-| `customerID`       | Identifiant unique du client   |
-| `gender`           | Genre du client                |
-| `SeniorCitizen`    | Indicateur de seniorité        |
-| `Partner`          | Présence d'un partenaire       |
-| `Dependents`       | Présence de personnes à charge |
-| `tenure`           | Ancienneté du client           |
-| `PhoneService`     | Service téléphonique           |
-| `MultipleLines`    | Plusieurs lignes téléphoniques |
-| `InternetService`  | Type de service Internet       |
-| `OnlineSecurity`   | Service de sécurité en ligne   |
-| `OnlineBackup`     | Service de sauvegarde en ligne |
-| `DeviceProtection` | Protection des appareils       |
-| `TechSupport`      | Support technique              |
-| `StreamingTV`      | Service de streaming TV        |
-| `StreamingMovies`  | Service de streaming vidéo     |
-| `Contract`         | Type de contrat                |
-| `PaperlessBilling` | Facturation sans papier        |
-| `PaymentMethod`    | Mode de paiement               |
-| `MonthlyCharges`   | Charges mensuelles             |
-| `TotalCharges`     | Charges totales                |
-| `Churn`            | Résiliation du client          |
+La variable `Churn` indique si le client a quitté l'entreprise :
+
+* `No` : client conservé
+* `Yes` : client ayant résilié
+
+La répartition de la cible est :
+
+* **73,46 %** de clients sans churn
+* **26,54 %** de clients ayant churné
 
 ---
 
-# Méthodologie
+## Analyse exploratoire
 
-Le projet est organisé en plusieurs étapes afin de suivre une démarche structurée de Data Science.
-
-## 1. Analyse et préparation des données
-
-La première étape consiste à charger le dataset et à analyser sa structure.
-
-Les vérifications réalisées comprennent notamment :
-
-* le nombre de lignes et de colonnes ;
-* les types de données ;
-* les valeurs manquantes ;
-* les doublons ;
-* les statistiques descriptives ;
-* la distribution de la variable cible.
-
-Une attention particulière a été portée à la variable `TotalCharges`, initialement considérée comme une variable textuelle.
-
-Les valeurs vides ont été converties en valeurs manquantes, puis la variable a été transformée en numérique.
-
-Les valeurs manquantes obtenues concernaient **11 observations**, correspondant à des clients ayant une ancienneté (`tenure`) égale à 0. Ces valeurs ont été remplacées par 0 afin de conserver ces observations dans le dataset.
-
-La variable `customerID` n'a pas été utilisée pour l'apprentissage car il s'agit d'un identifiant unique qui n'apporte pas d'information prédictive pertinente.
-
----
-
-## 2. Analyse exploratoire des données
-
-Une analyse exploratoire a été réalisée afin d'identifier les principales caractéristiques associées au churn.
-
-### Distribution du churn
-
-Le dataset contient :
-
-* **73,46 %** de clients n'ayant pas résilié ;
-* **26,54 %** de clients ayant résilié.
-
-La variable cible présente donc un déséquilibre modéré entre les deux classes.
+L'analyse exploratoire a permis d'identifier plusieurs associations avec le churn.
 
 ### Type de contrat
 
-Le type de contrat présente une différence importante dans les taux de churn.
+Le taux de churn est particulièrement élevé chez les clients ayant un contrat mensuel :
 
-| Type de contrat | Taux de churn |
-| --------------- | ------------: |
-| Month-to-month  |       42,71 % |
-| One year        |       11,27 % |
-| Two year        |        2,83 % |
-
-Les clients disposant d'un contrat mensuel présentent donc un taux de résiliation nettement supérieur à celui observé pour les contrats d'un ou deux ans.
+* Month-to-month : **42,71 %**
+* One year : **11,27 %**
+* Two year : **2,83 %**
 
 ### Ancienneté
 
-L'ancienneté moyenne diffère également entre les deux groupes :
+L'ancienneté moyenne est différente selon le statut du client :
 
-* clients n'ayant pas résilié : **37,57 mois** ;
-* clients ayant résilié : **17,98 mois**.
+* Clients sans churn : **37,57 mois**
+* Clients ayant churné : **17,98 mois**
 
-Les clients ayant une ancienneté plus faible sont davantage représentés parmi les clients ayant résilié leur contrat.
+Les clients ayant une ancienneté plus faible sont donc davantage représentés parmi les clients ayant quitté l'entreprise.
 
-### Charges mensuelles
+### Dépenses mensuelles
 
-Les charges mensuelles moyennes sont :
+Les dépenses mensuelles moyennes sont également différentes :
 
-* **61,27** pour les clients n'ayant pas résilié ;
-* **74,44** pour les clients ayant résilié.
+* Clients sans churn : **61,27**
+* Clients ayant churné : **74,44**
 
-### Service Internet
+Ces résultats permettent d'identifier des profils associés au churn.
 
-Le taux de churn varie également selon le type de service Internet :
-
-| Service Internet    | Taux de churn |
-| ------------------- | ------------: |
-| DSL                 |       18,96 % |
-| Fiber optic         |       41,89 % |
-| No internet service |        7,40 % |
-
-### Mode de paiement
-
-Le mode de paiement présente également des différences :
-
-| Mode de paiement        | Taux de churn |
-| ----------------------- | ------------: |
-| Electronic check        |       45,29 % |
-| Mailed check            |       19,11 % |
-| Automatic bank transfer |       16,71 % |
-| Automatic credit card   |       15,24 % |
-
-Ces résultats permettent d'identifier des profils présentant des niveaux de churn différents.
-
-**Attention : ces observations montrent des associations statistiques et ne permettent pas d'établir une relation de causalité.**
+**Attention : ces observations montrent des associations dans les données et ne permettent pas de conclure à une relation de causalité.**
 
 ---
 
-# Prétraitement des données
+## Préparation des données
 
-Avant l'entraînement des modèles, les données ont été séparées en variables numériques et catégorielles.
+Plusieurs étapes de préparation ont été réalisées avant l'entraînement des modèles.
+
+### Nettoyage
+
+La variable `TotalCharges` contenait **11 valeurs manquantes**.
+
+Ces valeurs correspondaient à des clients ayant une ancienneté de 0 mois.
+
+Les valeurs ont été converties en valeurs numériques puis les valeurs manquantes ont été remplacées par `0`.
+
+Aucun doublon n'a été détecté.
+
+La variable `customerID` a été supprimée car elle constitue un identifiant et n'apporte pas d'information utile à la prédiction.
 
 ### Variables numériques
+
+Les variables numériques utilisées sont :
 
 * `tenure`
 * `MonthlyCharges`
 * `TotalCharges`
 
-Les variables numériques ont été standardisées avec `StandardScaler`.
+Elles sont standardisées avec **StandardScaler**.
 
 ### Variables catégorielles
 
-Les variables catégorielles ont été transformées avec `OneHotEncoder`.
+Les variables catégorielles sont transformées avec **OneHotEncoder**.
 
-L'option `handle_unknown="ignore"` permet de gérer correctement d'éventuelles catégories inconnues lors de la transformation des données de test.
+Les paramètres utilisés sont :
 
-L'option `drop="first"` permet de supprimer une modalité de référence pour chaque variable catégorielle.
+* `handle_unknown="ignore"` afin de gérer les catégories éventuellement absentes du jeu d'entraînement ;
+* `drop="first"` afin d'éviter une redondance entre les catégories.
 
----
-
-# Séparation des données
-
-Les données ont été séparées en :
-
-* **80 % pour l'entraînement** ;
-* **20 % pour le test**.
-
-La séparation a été réalisée avec une `random_state` fixée à `42` afin d'obtenir des résultats reproductibles.
-
-Une **stratification sur la variable cible** a également été utilisée afin de conserver une proportion similaire de clients ayant résilié dans les ensembles d'entraînement et de test.
-
-### Dimensions
-
-| Ensemble     | Nombre d'observations |
-| ------------ | --------------------: |
-| Entraînement |                 5 634 |
-| Test         |                 1 409 |
+Après transformation, le jeu de données contient **46 variables**.
 
 ---
 
-# Modèles de Machine Learning
+## Séparation des données
 
-Trois algorithmes de classification ont été étudiés.
+Le dataset est séparé en deux parties :
 
-## Régression Logistique
+* **80 % pour l'entraînement**
+* **20 % pour le test**
 
-La Régression Logistique constitue un modèle de référence adapté aux problèmes de classification binaire.
+La séparation est stratifiée afin de conserver une répartition similaire de la variable cible dans les deux ensembles.
 
-Elle permet également d'obtenir un modèle relativement interprétable.
+Paramètres utilisés :
 
-## Decision Tree
+* `random_state=42`
+* `stratify=y`
 
-L'arbre de décision permet de représenter les règles de classification sous forme d'une structure arborescente.
+Résultat :
 
-Il peut capturer des relations non linéaires entre les variables.
-
-La profondeur de l'arbre, le nombre de feuilles et le nombre de nœuds ont également été étudiés afin d'analyser sa complexité.
-
-## Random Forest
-
-Le Random Forest repose sur un ensemble de plusieurs arbres de décision.
-
-Cette approche permet généralement d'obtenir des modèles plus robustes qu'un arbre de décision unique et de mesurer l'importance des variables utilisées dans les prédictions.
+* Jeu d'entraînement : **5 634 clients**
+* Jeu de test : **1 409 clients**
 
 ---
 
-# Métriques d'évaluation
+## Pipeline de Machine Learning
 
-Plusieurs métriques ont été utilisées afin d'obtenir une évaluation complète des modèles :
+Le pipeline général du projet est le suivant :
+
+**Données brutes → Nettoyage → Prétraitement → Séparation Train/Test → Entraînement → Optimisation → Évaluation → Visualisation**
+
+Le prétraitement et le modèle sont intégrés dans les pipelines afin d'éviter les fuites de données entre les différentes étapes.
+
+---
+
+## Modèles testés
+
+Trois algorithmes de classification ont été étudiés :
+
+### 1. Régression logistique
+
+La régression logistique constitue un modèle de référence simple et interprétable.
+
+Elle permet notamment d'obtenir des probabilités d'appartenance à la classe `Churn`.
+
+### 2. Decision Tree
+
+L'arbre de décision fonctionne à partir d'une succession de règles permettant de séparer les différentes classes.
+
+Il est facilement interprétable mais peut être sensible au surapprentissage.
+
+### 3. Random Forest
+
+Random Forest est un ensemble de plusieurs arbres de décision.
+
+L'objectif est de combiner leurs prédictions afin d'obtenir un modèle plus robuste qu'un arbre individuel.
+
+---
+
+## Métriques utilisées
+
+Plusieurs métriques sont utilisées pour comparer les modèles :
 
 ### Accuracy
 
-Proportion globale de prédictions correctes.
+Proportion de prédictions correctement classées.
 
 ### Precision
 
-Parmi les clients prédits comme churners, proportion de clients qui ont réellement résilié.
+Parmi les clients prédits comme churners, proportion de clients qui ont réellement churné.
 
 ### Recall
 
-Parmi les clients ayant réellement résilié, proportion correctement détectée par le modèle.
+Parmi les clients ayant réellement churné, proportion de ceux correctement détectés.
 
 ### F1-score
 
@@ -272,255 +209,290 @@ Moyenne harmonique entre la précision et le recall.
 
 ### ROC-AUC
 
-Mesure la capacité du modèle à distinguer les deux classes sur différents seuils de classification.
+Mesure la capacité du modèle à distinguer les deux classes sur différents seuils de décision.
 
-Une **matrice de confusion** et une **courbe ROC** ont également été utilisées pour compléter l'analyse.
+Le ROC-AUC est calculé à partir des probabilités prédites par les modèles.
 
 ---
 
-# Résultats des modèles
+# Résultats avant optimisation
 
-## Modèles optimisés sur le jeu de test
+Une première comparaison des modèles a été réalisée avant l'optimisation des hyperparamètres.
 
-| Modèle                |   Accuracy |  Precision |     Recall |   F1-score |    ROC-AUC |
-| --------------------- | ---------: | ---------: | ---------: | ---------: | ---------: |
-| Régression Logistique |     0.8055 |     0.6572 | **0.5588** | **0.6040** |     0.8413 |
-| Decision Tree         |     0.7956 |     0.6335 |     0.5455 |     0.5862 |     0.8270 |
-| Random Forest         | **0.8041** | **0.6667** |     0.5241 |     0.5868 | **0.8438** |
+| Modèle              | Accuracy | Precision |  Recall | F1-score | ROC-AUC |
+| ------------------- | -------: | --------: | ------: | -------: | ------: |
+| Logistic Regression |  80,62 % |   65,93 % | 55,88 % |  60,49 % | 84,22 % |
+| Decision Tree       |  73,03 % |   49,17 % | 47,59 % |  48,37 % | 64,86 % |
+| Random Forest       |  79,49 % |   64,41 % | 50,80 % |  56,80 % | 82,56 % |
 
-Les trois modèles présentent des performances relativement proches.
+La **régression logistique** obtient les meilleurs résultats initiaux sur la majorité des métriques.
 
-Le Random Forest obtient le meilleur ROC-AUC sur le jeu de test ainsi que la meilleure précision.
-
-La Régression Logistique obtient cependant le meilleur recall et le meilleur F1-score.
+Cette première étape permet également de servir de référence avant l'optimisation des modèles.
 
 ---
 
 # Optimisation des hyperparamètres
 
-Une recherche par grille (`GridSearchCV`) a été réalisée afin d'identifier des configurations plus performantes.
+Afin d'améliorer les performances, une recherche des meilleurs hyperparamètres a été réalisée avec **GridSearchCV**.
 
-### Random Forest
+La validation croisée permet de tester plusieurs configurations du modèle sur différentes partitions du jeu d'entraînement.
 
-Les paramètres explorés comprenaient notamment :
+La métrique utilisée pour sélectionner les meilleurs paramètres est le **ROC-AUC**.
 
-* `n_estimators`
-* `max_depth`
-* `min_samples_split`
-* `min_samples_leaf`
+### Meilleurs paramètres
 
-La meilleure configuration obtenue est :
+#### Logistic Regression
 
-```text
-n_estimators = 200
-max_depth = 10
-min_samples_split = 2
-min_samples_leaf = 2
-```
+* `C = 10`
+* `solver = lbfgs`
+* ROC-AUC moyen en validation croisée : **0,8460**
 
-Le meilleur ROC-AUC obtenu en validation croisée est de **0,8435**.
+#### Decision Tree
 
-### Régression Logistique
+* `max_depth = 5`
+* `min_samples_split = 2`
+* `min_samples_leaf = 10`
+* ROC-AUC moyen en validation croisée : **0,8184**
 
-Les paramètres `C` et `solver` ont été optimisés.
+#### Random Forest
 
-La meilleure configuration est :
-
-```text
-C = 10
-solver = lbfgs
-```
-
-Le meilleur ROC-AUC obtenu en validation croisée est de **0,8460**.
-
-### Decision Tree
-
-Les paramètres liés à la profondeur et aux tailles minimales des feuilles et des divisions ont été optimisés.
-
-La meilleure configuration est :
-
-```text
-max_depth = 5
-min_samples_split = 2
-min_samples_leaf = 10
-```
-
-Le meilleur ROC-AUC obtenu en validation croisée est de **0,8184**.
+* `n_estimators = 200`
+* `max_depth = 10`
+* `min_samples_split = 2`
+* `min_samples_leaf = 2`
+* ROC-AUC moyen en validation croisée : **0,8435**
 
 ---
 
-# Modèle final
+# Résultats après optimisation
+
+Les modèles optimisés ont ensuite été évalués sur le jeu de test, qui n'a pas été utilisé pendant l'entraînement.
+
+| Modèle              | Accuracy | Precision |  Recall | F1-score | ROC-AUC |
+| ------------------- | -------: | --------: | ------: | -------: | ------: |
+| Logistic Regression |  80,55 % |   65,72 % | 55,88 % |  60,40 % | 84,13 % |
+| Decision Tree       |  79,56 % |   63,35 % | 54,55 % |  58,62 % | 82,70 % |
+| Random Forest       |  80,41 % |   66,67 % | 52,41 % |  58,68 % | 84,38 % |
+
+---
+
+# Choix du modèle final
 
 Le **Random Forest optimisé** a été retenu comme modèle final.
 
-Ses performances sur le jeu de test sont :
+Il obtient le meilleur **ROC-AUC sur le jeu de test avec 84,38 %**, ainsi que la meilleure **Precision avec 66,67 %** parmi les modèles optimisés.
 
-* Accuracy : **80,41 %**
-* Precision : **66,67 %**
-* Recall : **52,41 %**
-* F1-score : **58,68 %**
-* ROC-AUC : **84,38 %**
+Cependant, la comparaison montre également que la régression logistique possède :
 
-Le ROC-AUC de 0,8438 indique une bonne capacité du modèle à distinguer les clients susceptibles de résilier de ceux qui ne résilient pas.
+* un meilleur Recall : **55,88 % contre 52,41 %**
+* un meilleur F1-score : **60,40 % contre 58,68 %**
 
-Cependant, le recall de 52,41 % montre qu'une partie importante des clients réellement churners n'est pas détectée.
+Le choix du modèle dépend donc de l'objectif métier.
+
+Dans ce projet, le Random Forest est retenu pour sa capacité de discrimination sur le jeu de test et sa possibilité d'analyser l'importance des variables.
 
 ---
 
-# Validation et généralisation
+# Validation du modèle final
 
-Le modèle final est évalué sur un jeu de test représentant 20 % des données, qui n'a pas été utilisé pour son entraînement.
+Le modèle final est évalué sur un jeu de test indépendant afin d'estimer sa capacité de généralisation sur de nouvelles données.
 
-Une comparaison des performances entre les données d'entraînement et de test permet d'analyser la capacité du modèle à généraliser son apprentissage à de nouvelles observations.
+La matrice de confusion du Random Forest est :
 
-L'analyse des erreurs permet également d'identifier les faux positifs et les faux négatifs.
+|               | Prédit No Churn | Prédit Churn |
+| ------------- | --------------: | -----------: |
+| Réel No Churn |             937 |           98 |
+| Réel Churn    |             178 |          196 |
 
-Pour le modèle final, la matrice de confusion obtenue est :
+Le modèle détecte correctement **196 clients churners sur 374**, soit un Recall de **52,41 %**.
 
-|            | Prédit : Non | Prédit : Oui |
-| ---------- | -----------: | -----------: |
-| Réel : Non |          937 |           98 |
-| Réel : Oui |          178 |          196 |
+Cela signifie également que **178 clients ayant réellement churné ne sont pas détectés par le modèle**.
 
-Le modèle identifie correctement **196 clients parmi les 374 clients ayant réellement résilié**.
-
-À l'inverse, **178 clients churners ne sont pas détectés** par le modèle.
-
-Ce résultat constitue une limite importante si l'objectif principal de l'entreprise est de détecter le maximum de clients à risque.
+Ce résultat constitue une limite importante si l'objectif métier principal est de détecter un maximum de clients susceptibles de partir.
 
 ---
 
 # Importance des variables
 
-L'analyse du Random Forest permet d'identifier les variables qui contribuent le plus aux prédictions.
+L'analyse de l'importance des variables du Random Forest montre notamment :
 
-Les dix variables les plus importantes sont :
+| Variable                       | Importance |
+| ------------------------------ | ---------: |
+| tenure                         |    19,83 % |
+| TotalCharges                   |    15,36 % |
+| MonthlyCharges                 |    11,58 % |
+| InternetService_Fiber optic    |     7,03 % |
+| PaymentMethod_Electronic check |     6,56 % |
+| Contract_Two year              |     5,95 % |
+| Contract_One year              |     3,41 % |
+| OnlineSecurity_Yes             |     3,39 % |
+| TechSupport_Yes                |     2,53 % |
+| PaperlessBilling_Yes           |     2,14 % |
 
-| Variable                         | Importance |
-| -------------------------------- | ---------: |
-| `tenure`                         |    19,83 % |
-| `TotalCharges`                   |    15,36 % |
-| `MonthlyCharges`                 |    11,58 % |
-| `InternetService_Fiber optic`    |     7,03 % |
-| `PaymentMethod_Electronic check` |     6,56 % |
-| `Contract_Two year`              |     5,95 % |
-| `Contract_One year`              |     3,41 % |
-| `OnlineSecurity_Yes`             |     3,39 % |
-| `TechSupport_Yes`                |     2,53 % |
-| `PaperlessBilling_Yes`           |     2,14 % |
+L'ancienneté (`tenure`) est la variable la plus importante selon le modèle.
 
-L'ancienneté, les charges totales et les charges mensuelles sont les variables les plus contributives aux prédictions du modèle.
+Ces importances permettent d'identifier les variables utilisées fortement par le modèle dans ses décisions.
 
-Ces importances permettent de mieux comprendre le fonctionnement du modèle, mais ne doivent pas être interprétées comme des relations causales.
+**Elles ne doivent cependant pas être interprétées comme des relations de causalité.**
 
 ---
 
-# Dashboard interactif
+# Dashboard
 
-Un dashboard interactif a été développé avec **Streamlit et Plotly** afin de faciliter l'exploration des caractéristiques associées au churn.
+Une interface interactive a été développée avec **Streamlit** afin de faciliter l'exploration des données et des résultats.
 
-Le dashboard permet notamment :
+Le dashboard permet notamment de :
 
-* d'appliquer des filtres sur le type de contrat ;
-* d'appliquer des filtres sur le service Internet ;
-* d'appliquer des filtres sur le mode de paiement ;
-* d'observer le taux de churn selon le type de contrat ;
-* d'observer le taux de churn selon le service Internet ;
-* d'observer le taux de churn selon l'ancienneté ;
-* d'analyser la distribution des charges mensuelles ;
-* d'explorer les données correspondant aux filtres sélectionnés.
+* filtrer les clients ;
+* analyser le churn selon le type de contrat ;
+* analyser le churn selon le service Internet ;
+* analyser le churn selon le moyen de paiement ;
+* visualiser la relation entre ancienneté et churn ;
+* analyser les dépenses mensuelles ;
+* consulter plusieurs indicateurs clés ;
+* afficher les données filtrées.
 
-Le dashboard est disponible dans :
+Les principaux indicateurs affichés sont notamment :
 
-```text
-dashboard/app.py
-```
-
-Pour le lancer :
-
-```bash
-python -m streamlit run dashboard/app.py
-```
+* nombre de clients ;
+* nombre de clients churners ;
+* taux de churn ;
+* ancienneté moyenne ;
+* dépenses mensuelles moyennes ;
+* ROC-AUC du modèle final.
 
 ---
 
 # Recommandations métier
 
-Les résultats obtenus peuvent être utilisés pour construire une stratégie de prévention du churn.
+Les résultats permettent d'identifier plusieurs profils particulièrement associés au churn.
 
-L'entreprise pourrait notamment :
+Une attention particulière peut notamment être portée aux :
 
-1. **Identifier les clients à risque** à l'aide des probabilités produites par le modèle.
+* clients avec un contrat `Month-to-month` ;
+* clients ayant une faible ancienneté ;
+* clients ayant des dépenses mensuelles élevées ;
+* clients utilisant certains services ou moyens de paiement associés à un churn plus important.
 
-2. **Porter une attention particulière aux nouveaux clients**, notamment ceux présentant une faible ancienneté.
+Le modèle peut être utilisé comme outil d'aide à la décision afin de cibler des actions de fidélisation.
 
-3. **Analyser les clients avec des contrats mensuels**, qui présentent un taux de churn nettement plus élevé.
+Par exemple :
 
-4. **Mettre en place des actions de fidélisation ciblées**, telles que des offres personnalisées ou des avantages liés à l'engagement.
+* proposer des offres adaptées ;
+* contacter les clients présentant un risque élevé ;
+* proposer des changements de contrat ;
+* améliorer l'accompagnement des nouveaux clients ;
+* analyser les services associés aux départs.
 
-5. **Analyser les profils associés aux différents services Internet et modes de paiement** afin d'identifier d'éventuels segments présentant un risque plus important.
-
-6. Utiliser le modèle comme un **outil d'aide à la décision** plutôt que comme un système de décision automatique.
+Ces recommandations doivent être complétées par une analyse métier avant toute décision opérationnelle.
 
 ---
 
-# Limites
+# Limites du projet
 
 Plusieurs limites doivent être prises en compte.
 
-### Performance du recall
-
-Le recall du modèle final est de **52,41 %**. Le modèle ne détecte donc qu'un peu plus de la moitié des clients ayant réellement résilié.
-
 ### Déséquilibre de la cible
 
-Les clients n'ayant pas résilié représentent environ 73 % du dataset contre 27 % pour les churners. L'Accuracy seule ne permet donc pas d'évaluer correctement les performances du modèle.
+La classe `Churn` est minoritaire avec environ **26,54 %** des clients.
 
-### Données utilisées
+L'Accuracy seule ne suffit donc pas pour évaluer correctement le modèle.
 
-Les résultats dépendent du dataset utilisé et de sa représentativité. Ils ne peuvent pas être automatiquement généralisés à toutes les entreprises de télécommunications.
+### Recall encore limité
 
-### Évolution des comportements
+Le modèle final présente un Recall de **52,41 %**.
 
-Les comportements des clients peuvent évoluer avec le temps. Un modèle performant aujourd'hui pourrait donc perdre en efficacité si les données et les comportements changent.
+Une partie importante des clients churners n'est donc pas détectée.
+
+### Dataset statique
+
+Le dataset utilisé représente une situation donnée et ne constitue pas nécessairement une représentation complète des comportements futurs des clients.
+
+### Interprétation des variables
+
+Les importances des variables montrent des associations utilisées par le modèle mais ne permettent pas d'établir des relations causales.
 
 ---
 
 # Perspectives d'amélioration
 
-Plusieurs pistes pourraient être explorées dans une version future du projet :
+Plusieurs améliorations pourraient être envisagées :
 
-* tester d'autres algorithmes de Machine Learning ;
-* utiliser des techniques de gestion du déséquilibre des classes ;
-* optimiser le seuil de classification afin d'améliorer le recall ;
-* analyser plus précisément les faux négatifs ;
+* tester d'autres algorithmes comme XGBoost, LightGBM ou SVM ;
+* comparer différentes stratégies de gestion du déséquilibre des classes ;
+* tester `class_weight="balanced"` ;
+* utiliser du sur-échantillonnage comme SMOTE ;
+* optimiser le seuil de classification afin d'améliorer le Recall ;
 * utiliser des méthodes d'interprétabilité comme SHAP ;
-* mettre en place un suivi des performances du modèle ;
-* réentraîner régulièrement le modèle avec de nouvelles données ;
-* enrichir le dashboard avec des fonctionnalités supplémentaires d'aide à la décision ;
-* déployer le modèle dans une application de prédiction.
+* réaliser une validation plus approfondie ;
+* intégrer de nouvelles données comportementales ;
+* améliorer le suivi des performances du modèle dans le temps.
+
+Une optimisation du seuil de décision pourrait notamment être intéressante si l'objectif métier est de détecter davantage de clients susceptibles de churner.
+
+---
+
+# Déploiement
+
+Le projet peut être déployé sous la forme d'une application de scoring.
+
+Une architecture possible serait :
+
+**Utilisateur / Application métier → API de prédiction → Modèle Machine Learning → Résultat du scoring → Dashboard**
+
+Le modèle pourrait être exposé via une API avec **Flask** ou **FastAPI**.
+
+Le dashboard Streamlit constitue une première interface permettant d'explorer les résultats.
+
+Le déploiement en production n'a pas été réalisé dans le cadre de ce projet ; cette architecture constitue une perspective d'évolution.
+
+---
+
+# Monitoring
+
+Une fois déployé, le modèle pourrait être suivi à l'aide de plusieurs indicateurs :
+
+* ROC-AUC ;
+* Precision ;
+* Recall ;
+* F1-score ;
+* taux de churn réel ;
+* taux de prédictions positives ;
+* évolution de la distribution des variables ;
+* dérive des données ;
+* temps de réponse de l'API ;
+* taux d'erreurs.
+
+Un système de monitoring permettrait de détecter une éventuelle dégradation des performances du modèle et d'identifier les besoins de réentraînement.
+
+Le monitoring en production n'a pas été implémenté dans ce projet.
 
 ---
 
 # Structure du projet
 
+Le projet est organisé de la manière suivante :
+
 ```text
 telco-customer-churn/
 │
-├── data/
-│   ├── raw/
-│   │   └── telco-customer-churn.csv
-│   │
-│   └── processed/
-│       └── telco_customer_churn_clean.csv
-│
 ├── dashboard/
 │   └── app.py
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── models/
 │
 ├── notebooks/
 │   ├── 01_analyse_preparation.ipynb
 │   ├── 02_modelisation_optimisation.ipynb
 │   └── 03_validation_finale.ipynb
+│
+├── reports/
+│   ├── figures/
+│   └── conclusions.md
 │
 ├── src/
 │   ├── preprocessing.py
@@ -528,68 +500,44 @@ telco-customer-churn/
 │   ├── evaluation.py
 │   └── visualization.py
 │
-├── models/
-│
-├── reports/
-│   ├── figures/
-│   └── conclusions.md
-│
-├── README.md
-├── requirements.txt
 ├── .gitignore
-└── LICENSE
+├── LICENSE
+├── README.md
+└── requirements.txt
 ```
-
-### Description des principaux dossiers
-
-**`data/`**
-Contient les données utilisées pour le projet.
-
-**`dashboard/`**
-Contient le dashboard interactif développé avec Streamlit et Plotly.
-
-**`notebooks/`**
-Contient les notebooks correspondant aux différentes étapes de l'analyse.
-
-**`src/`**
-Contient les fonctions Python réutilisables liées au prétraitement, aux modèles, à l'évaluation et aux visualisations.
-
-**`models/`**
-Destiné aux modèles entraînés et sauvegardés.
-
-**`reports/`**
-Contient les conclusions et les figures produites pendant le projet.
 
 ---
 
 # Installation
 
-## 1. Cloner le projet
+Cloner le repository :
 
 ```bash
 git clone https://github.com/lynalasla/telco-customer-churn.git
 cd telco-customer-churn
 ```
 
-## 2. Créer un environnement virtuel
+Créer un environnement virtuel :
 
 ```bash
 python -m venv .venv
 ```
 
-### Windows
+Activer l'environnement virtuel.
+
+Sous Windows :
 
 ```bash
 .venv\Scripts\activate
 ```
 
-### Linux / macOS
+Sous macOS/Linux :
 
 ```bash
 source .venv/bin/activate
 ```
 
-## 3. Installer les dépendances
+Installer les dépendances :
 
 ```bash
 pip install -r requirements.txt
@@ -599,67 +547,76 @@ pip install -r requirements.txt
 
 # Exécution
 
-L'analyse peut être exécutée dans l'ordre suivant.
-
-### 1. Analyse et préparation
+Les notebooks peuvent être exécutés dans l'ordre suivant :
 
 ```text
-notebooks/01_analyse_preparation.ipynb
+01_analyse_preparation.ipynb
+        ↓
+02_modelisation_optimisation.ipynb
+        ↓
+03_validation_finale.ipynb
 ```
 
-Ce notebook contient l'analyse de la qualité des données, le nettoyage, les statistiques descriptives et l'analyse exploratoire.
-
-### 2. Modélisation et optimisation
-
-```text
-notebooks/02_modelisation_optimisation.ipynb
-```
-
-Ce notebook contient l'entraînement des modèles, leur comparaison et l'optimisation des hyperparamètres.
-
-### 3. Validation finale
-
-```text
-notebooks/03_validation_finale.ipynb
-```
-
-Ce notebook contient l'évaluation finale du modèle, la matrice de confusion, la courbe ROC, l'analyse de la généralisation et l'importance des variables.
-
-### 4. Dashboard interactif
-
-Le dashboard peut être lancé depuis la racine du projet avec :
+Pour lancer le dashboard Streamlit :
 
 ```bash
-python -m streamlit run dashboard/app.py
+streamlit run dashboard/app.py
 ```
 
 ---
 
 # Technologies utilisées
 
-* **Python**
-* **Pandas**
-* **NumPy**
-* **Scikit-learn**
-* **Matplotlib**
-* **Seaborn**
-* **Plotly**
-* **Streamlit**
-* **Jupyter Notebook**
-* **Git / GitHub**
+### Langage
+
+* Python
+
+### Analyse et traitement des données
+
+* Pandas
+* NumPy
+
+### Machine Learning
+
+* Scikit-learn
+
+### Visualisation
+
+* Matplotlib
+* Seaborn
+* Plotly
+
+### Dashboard
+
+* Streamlit
+
+### Environnement
+
+* Jupyter Notebook
+* Git
+* GitHub
 
 ---
 
 # Conclusion
 
-Ce projet a permis de mettre en œuvre une démarche complète de Machine Learning appliquée à la prédiction du churn client.
+Ce projet a permis de mettre en place une chaîne complète de Machine Learning pour la prédiction du churn client.
 
-L'analyse exploratoire a permis d'identifier plusieurs caractéristiques associées au départ des clients, notamment l'ancienneté, le type de contrat, les charges mensuelles, le type de service Internet et le mode de paiement.
+Les principales étapes réalisées sont :
 
-Après comparaison et optimisation de plusieurs modèles, le Random Forest optimisé a obtenu un **ROC-AUC de 0,8438 sur le jeu de test**.
+1. analyse et nettoyage des données ;
+2. préparation des variables ;
+3. séparation des données en train/test ;
+4. entraînement de trois modèles ;
+5. comparaison des performances ;
+6. optimisation avec GridSearchCV ;
+7. validation sur un jeu de test indépendant ;
+8. analyse des variables importantes ;
+9. création d'un dashboard interactif ;
+10. réflexion sur le déploiement et le monitoring.
 
-Le modèle constitue ainsi une base pertinente pour identifier les clients présentant un risque de résiliation. Toutefois, son recall de 52,41 % montre qu'une amélioration reste nécessaire avant une utilisation opérationnelle.
+Le Random Forest optimisé atteint un **ROC-AUC de 84,38 %** sur le jeu de test.
 
-Le dashboard interactif développé avec Streamlit et Plotly permet de compléter l'analyse par une exploration visuelle des caractéristiques associées au churn.
+Cependant, son Recall de **52,41 %** montre qu'une partie importante des clients churners reste difficile à détecter.
 
-Dans un contexte réel, l'étape suivante consisterait notamment à optimiser le seuil de décision et à privilégier une stratégie permettant de détecter davantage de clients à risque, tout en maîtrisant le nombre de fausses alertes.
+Le projet pourrait donc être amélioré en travaillant notamment sur le déséquilibre des classes, le choix du seuil de décision, l'interprétabilité et l'intégration de nouvelles données.
