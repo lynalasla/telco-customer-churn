@@ -1,6 +1,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from pathlib import Path
+import sys
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from src.preprocessing import clean_data
 
 
 # ============================================================
@@ -151,30 +160,10 @@ st.markdown(
 def load_data():
 
     # Chemin vers le fichier de données utilisé par le dashboard.
-    path = "data/raw/telco-customer-churn.csv"
+    path = PROJECT_ROOT / "data" / "raw" / "telco-customer-churn.csv"
 
     # Lecture du fichier CSV avec Pandas.
-    df = pd.read_csv(path)
-
-    # Certaines valeurs de TotalCharges sont vides.
-    # Elles sont d'abord remplacées par des valeurs manquantes.
-    df["TotalCharges"] = df["TotalCharges"].replace(
-        r"^\s*$",
-        pd.NA,
-        regex=True
-    )
-
-    # Conversion de TotalCharges en variable numérique.
-    # Les valeurs qui ne peuvent pas être converties deviennent NaN.
-    df["TotalCharges"] = pd.to_numeric(
-        df["TotalCharges"],
-        errors="coerce"
-    )
-
-    # Pour les 11 clients concernés, TotalCharges est remplacé par 0.
-    df["TotalCharges"] = df["TotalCharges"].fillna(0)
-
-    return df
+    return clean_data(pd.read_csv(path))
 
 
 # Gestion du cas où le fichier de données n'est pas trouvé.

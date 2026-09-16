@@ -127,7 +127,7 @@ Le paramètre utilisé est :
 
 * `handle_unknown="ignore"` afin de gérer les catégories éventuellement absentes du jeu d’entraînement.
 
-Après transformation, le jeu de données contient **46 variables**.
+Après transformation, le jeu de données contient **30 variables** : 3 variables numériques standardisées et 27 variables issues de l'encodage catégoriel. La première modalité de chaque variable catégorielle est retirée afin d'éviter la redondance.
 
 ---
 
@@ -361,7 +361,7 @@ Les principaux indicateurs affichés sont notamment :
 * taux de churn ;
 * ancienneté moyenne ;
 * dépenses mensuelles moyennes ;
-* ROC-AUC du modèle final.
+* un rappel du ROC-AUC obtenu par le modèle final sur le jeu de test.
 
 ---
 
